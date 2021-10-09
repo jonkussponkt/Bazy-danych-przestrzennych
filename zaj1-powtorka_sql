@@ -1,0 +1,164 @@
+--1. Utwórz nową bazę danych nazywając ją firma. 
+
+CREATE DATABASE firma;
+
+--2. Dodaj schemat o nazwie ksiegowosc.
+
+CREATE SCHEMA ksiegowosc;
+
+--4. Dodaj cztery tabele:
+
+CREATE TABLE ksiegowosc.pracownicy(
+	id_pracownika INT PRIMARY KEY NOT NULL,
+	imie VARCHAR(30) NOT NULL,
+	nazwisko VARCHAR(50) NOT NULL,
+	adres VARCHAR(50) NOT NULL,
+	telefon VARCHAR(12) NOT NULL
+);
+
+--czemu nie ma nvarchar
+
+CREATE TABLE ksiegowosc.godziny(
+	id_godziny INT PRIMARY KEY NOT NULL,
+	data_godziny DATE NOT NULL,
+	liczba_godzin INT,
+	id_pracownika INT NOT NULL REFERENCES pracownicy(id_pracownika)
+);
+
+CREATE TABLE ksiegowosc.pensja(
+	id_pensji INT PRIMARY KEY NOT NULL,
+	stanowisko VARCHAR(40) NOT NULL,
+	kwota REAL --taki float
+);
+
+--DROP TABLE ksiegowosc.pensja CASCADE;
+
+CREATE TABLE ksiegowosc.premia(
+	id_premii INT PRIMARY KEY NOT NULL,
+	rodzaj VARCHAR(30) NOT NULL,
+	KWOTA REAL NOT NULL
+);
+
+CREATE TABLE ksiegowosc.wynagrodzenie(        
+	id_wynagrodzenia CHAR(3) PRIMARY KEY NOT NULL,
+	data_wyplaty DATE NOT NULL,
+	id_pracownika INT NOT NULL REFERENCES ksiegowosc.pracownicy(id_pracownika), 
+	id_godziny INT NOT NULL REFERENCES ksiegowosc.godziny(id_godziny), --czm tu trzeba nazwe schematu
+	id_pensji INT NOT NULL REFERENCES ksiegowosc.pensja(id_pensji),    --a w powyzszych nie
+	id_premii INT REFERENCES ksiegowosc.premia(id_premii)
+);
+
+--ALTER TABLE ksiegowosc.wynagrodzenie
+--	ADD FOREIGN KEY (ID_premii) REFERENCES ksiegowosc.premie(ID_premii);
+
+-- komentarze
+
+COMMENT ON TABLE ksiegowosc.godziny IS 'liczba przepracowanych godzin';
+COMMENT ON TABLE ksiegowosc.pensja IS 'wyplacone pensje';
+COMMENT ON TABLE ksiegowosc.pracownicy IS 'dane osobowe i kontaktowe pracowników';
+COMMENT ON TABLE ksiegowosc.premia IS 'kwota i rodzaj wypłaconej premii';
+COMMENT ON TABLE ksiegowosc.wynagrodzenie IS 'łączna suma wynagrodzenia';
+
+--sprawdzamy: z lewej -> Tables -> PPM -> Properties
+
+--5. Wypełnij każdą tabelę 10. rekordami.
+
+INSERT INTO ksiegowosc.pracownicy VALUES (1, 'Jan', 'Kowalski', 'Warszawa, Prusa 17a', '778-282-249');
+INSERT INTO ksiegowosc.pracownicy VALUES (2, 'Janina', 'Kowalska', 'Warszawa, Poniatowskiego 94/10', '487-355-829');
+INSERT INTO ksiegowosc.pracownicy VALUES (3, 'Katarzyna', 'Dworak', 'Kraków, Makowskiego 37/18', '249-545-288');
+INSERT INTO ksiegowosc.pracownicy VALUES (4, 'Lucjan', 'Janowiec', 'Warszawa, Mokotowska 87b', '398-280-197');
+INSERT INTO ksiegowosc.pracownicy VALUES (5, 'Stanisława', 'Obremska', 'Warszawa, Chmielowa 28b/19', '893-484-292');
+INSERT INTO ksiegowosc.pracownicy VALUES (6, 'Wiesław', 'Oleś', 'Mińsk Mazowiecki, Mickiewicza 8', '398-492-375');
+INSERT INTO ksiegowosc.pracownicy VALUES (7, 'Krzysztof', 'Malinowski', 'Warszawa, Wlotowa 18', '372-282-489');
+INSERT INTO ksiegowosc.pracownicy VALUES (8, 'Mirosław', 'Borowiec', 'Lublin, Zamojska 92c/189', '382-299-385');
+INSERT INTO ksiegowosc.pracownicy VALUES (9, 'Aleksander', 'Zaborski', 'Szczecin, Gdańska 1', '193-284-382');
+INSERT INTO ksiegowosc.pracownicy VALUES (10, 'Ludmiła', 'Wronecka', 'Warszawa, Krótka 39', '537-224-981');
+
+INSERT INTO ksiegowosc.godziny VALUES (1, '20200528', 2, 7);
+INSERT INTO ksiegowosc.godziny VALUES (2, '20200503', 8, 1);
+INSERT INTO ksiegowosc.godziny VALUES (3, '20200311', 4, 8);
+INSERT INTO ksiegowosc.godziny VALUES (4, '20200317', 4, 9);
+INSERT INTO ksiegowosc.godziny VALUES (5, '20200629', 8, 4);
+INSERT INTO ksiegowosc.godziny VALUES (6, '20200707', 5, 3);
+INSERT INTO ksiegowosc.godziny VALUES (7, '20200918', 6, 7);
+INSERT INTO ksiegowosc.godziny VALUES (8, '20200628', 8, 5);
+INSERT INTO ksiegowosc.godziny VALUES (9, '20200601', 3, 6);
+INSERT INTO ksiegowosc.godziny VALUES (10, '20200713', 6, 10);
+
+INSERT INTO ksiegowosc.pensja VALUES (1001, 'Prezes', 15000);
+INSERT INTO ksiegowosc.pensja VALUES (1002, 'Wiceprezes', 12500);
+INSERT INTO ksiegowosc.pensja VALUES (1003, 'Członek zarządu', 10000);
+INSERT INTO ksiegowosc.pensja VALUES (1004, 'Księgowy', 8000);
+INSERT INTO ksiegowosc.pensja VALUES (1005, 'Pracownik HR', 7500);
+INSERT INTO ksiegowosc.pensja VALUES (1006, 'Brygadzista', 5000);
+INSERT INTO ksiegowosc.pensja VALUES (1007, 'Pracownik produkcyjny', 3500);
+INSERT INTO ksiegowosc.pensja VALUES (1008, 'Pracownik produkcyjny', 3500);
+INSERT INTO ksiegowosc.pensja VALUES (1009, 'Pracownik produkcyjny', 3500);
+INSERT INTO ksiegowosc.pensja VALUES (1010, 'Pracownik produkcyjny', 3500);
+
+INSERT INTO ksiegowosc.premia VALUES (2001, 'Miesięczna', 4000);
+INSERT INTO ksiegowosc.premia VALUES (2002, 'Miesięczna', 3000);
+INSERT INTO ksiegowosc.premia VALUES (2003, 'Kwartalna', 2500);
+INSERT INTO ksiegowosc.premia VALUES (2004, 'Miesięczna', 2000);
+INSERT INTO ksiegowosc.premia VALUES (2005, 'Dodatek motywacyjny', 2000);
+INSERT INTO ksiegowosc.premia VALUES (2006, 'Dodatek funkcyjny', 2000);
+INSERT INTO ksiegowosc.premia VALUES (2008, 'Za nadgodziny', 1000);
+INSERT INTO ksiegowosc.premia VALUES (2009, 'Za nadgodziny', 1000);
+INSERT INTO ksiegowosc.premia VALUES (2010, 'Za nadgodziny', 1000);
+
+INSERT INTO ksiegowosc.wynagrodzenie 
+	(ID_wynagrodzenia, data_wyplaty, ID_pracownika, ID_godziny, ID_pensji, ID_premii) 
+VALUES 
+	('W01', '20200503', 1, 2, 1001, 2001),
+	('W02', '20200918', 2, 7, 1002, 2002),
+	('W03', '20200707', 3, 4, 1003, 2003),
+	('W04', '20200629', 4, 5, 1004, 2004),
+	('W05', '20200628', 5, 8, 1005, 2005),
+	('W06', '20200601', 6, 9, 1006, 2006)
+INSERT INTO ksiegowosc.wynagrodzenie VALUES
+	('W07', '20200528', 7, 1, 1007)
+	
+INSERT INTO ksiegowosc.wynagrodzenie 
+	(ID_wynagrodzenia, data_wyplaty, ID_pracownika, ID_godziny, ID_pensji, ID_premii) 
+VALUES
+	('W08', '20200311', 8, 3, 1008, 2008),
+	('W09', '20200317', 9, 4, 1009, 2009),
+	('W10', '20200713', 10, 10, 1010, 2010);
+
+--6a Wyświetl tylko id pracownika oraz jego nazwisko
+
+SELECT id_pracownika, nazwisko FROM ksiegowosc.pracownicy;
+
+--6b Wyświetl id pracowników, których płaca jest większa niż 1000.
+
+INSERT INTO ksiegowosc.pensja VALUES (1011, 'Pracownik sezonowy', 999);
+INSERT INTO ksiegowosc.pracownicy VALUES(11, 'Jan', 'Nowak', 'Warszawa, ul.Długa 9', '435-446-679')
+INSERT INTO ksiegowosc.godziny VALUES(11, '20200701', 20, 11)
+INSERT INTO ksiegowosc.wynagrodzenie VALUES('W11', '20200714', 11, 11, 1011)
+
+SELECT pracownicy.ID_pracownika FROM ksiegowosc.pracownicy  --musi być nazwa tabeli pracownicy przy select, żeby nie było niejednoznaczności kolumn
+	INNER JOIN ksiegowosc.wynagrodzenie ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
+		INNER JOIN ksiegowosc.pensja ON wynagrodzenie.id_pensji = pensja.id_pensji
+			INNER JOIN ksiegowosc.premia ON wynagrodzenie.id_premii = premia.id_premii
+				WHERE (pensja.kwota + premia.kwota) > 1000
+	
+--6c Wyświetl id pracowników nieposiadających premii,których płaca jest większa niż 2000.
+
+DELETE FROM ksiegowosc.premia
+	WHERE id_premii = 2007
+
+SELECT pracownicy.ID_pracownika FROM ksiegowosc.pracownicy
+	INNER JOIN ksiegowosc.wynagrodzenie ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
+		INNER JOIN ksiegowosc.pensja ON wynagrodzenie.id_pensji = pensja.id_pensji
+		WHERE id_premii IS NULL AND pensja.kwota > 2000
+
+--6d Wyświetl pracowników, których pierwsza litera imienia zaczyna się na literę ‘J’. 
+
+SELECT * FROM ksiegowosc.pracownicy
+	WHERE imie LIKE 'J%'  --like do porównywania stringów
+		
+--6e Wyświetl pracowników, których nazwisko zawiera literę ‘n’ oraz imię kończy się na literę ‘a’
+
+SELECT * FROM ksiegowosc.pracownicy
+	WHERE nazwisko LIKE '%n%' AND imie LIKE '%a'
+
