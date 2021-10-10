@@ -22,7 +22,7 @@ CREATE TABLE ksiegowosc.godziny(
 	id_godziny INT PRIMARY KEY NOT NULL,
 	data_godziny DATE NOT NULL,
 	liczba_godzin INT,
-	id_pracownika INT NOT NULL REFERENCES pracownicy(id_pracownika)
+	id_pracownika INT NOT NULL REFERENCES pracownicy(id_pracownika) ON DELETE CASCADE
 );
 
 CREATE TABLE ksiegowosc.pensja(
@@ -42,10 +42,10 @@ CREATE TABLE ksiegowosc.premia(
 CREATE TABLE ksiegowosc.wynagrodzenie(        
 	id_wynagrodzenia CHAR(3) PRIMARY KEY NOT NULL,
 	data_wyplaty DATE NOT NULL,
-	id_pracownika INT NOT NULL REFERENCES ksiegowosc.pracownicy(id_pracownika), 
-	id_godziny INT NOT NULL REFERENCES ksiegowosc.godziny(id_godziny), --czm tu trzeba nazwe schematu
-	id_pensji INT NOT NULL REFERENCES ksiegowosc.pensja(id_pensji),    --a w powyzszych nie
-	id_premii INT REFERENCES ksiegowosc.premia(id_premii)
+	id_pracownika INT NOT NULL REFERENCES ksiegowosc.pracownicy(id_pracownika)  ON DELETE CASCADE,
+	id_godziny INT NOT NULL REFERENCES ksiegowosc.godziny(id_godziny) ON DELETE CASCADE, --czm tu trzeba nazwe schematu
+	id_pensji INT NOT NULL REFERENCES ksiegowosc.pensja(id_pensji)   ON DELETE CASCADE, --a w powyzszych nie
+	id_premii INT REFERENCES ksiegowosc.premia(id_premii) 				ON DELETE CASCADE
 );
 
 --ALTER TABLE ksiegowosc.wynagrodzenie
@@ -114,9 +114,9 @@ VALUES
 	('W03', '20200707', 3, 4, 1003, 2003),
 	('W04', '20200629', 4, 5, 1004, 2004),
 	('W05', '20200628', 5, 8, 1005, 2005),
-	('W06', '20200601', 6, 9, 1006, 2006)
+	('W06', '20200601', 6, 9, 1006, 2006);
 INSERT INTO ksiegowosc.wynagrodzenie VALUES
-	('W07', '20200528', 7, 1, 1007)
+	('W07', '20200528', 7, 1, 1007);
 	
 INSERT INTO ksiegowosc.wynagrodzenie 
 	(ID_wynagrodzenia, data_wyplaty, ID_pracownika, ID_godziny, ID_pensji, ID_premii) 
@@ -161,4 +161,86 @@ SELECT * FROM ksiegowosc.pracownicy
 
 SELECT * FROM ksiegowosc.pracownicy
 	WHERE nazwisko LIKE '%n%' AND imie LIKE '%a'
+	
+--6f Wyświetl imię i nazwisko pracowników oraz liczbę ich nadgodzin, 
+--   przyjmując, iż standardowy czas pracy to 160 h miesięcznie. 
 
+--ALTER TABLE ksiegowosc.pracownicy  --zmiana danych w tablicy - pozwala zmienić/dodac/usunąć dużo rzeczy w tabelach https://www.w3schools.com/sql/sql_ref_alter_table.asp
+
+UPDATE ksiegowosc.godziny
+	SET liczba_godzin = liczba_godzin + 155;
+
+SELECT imie, nazwisko, liczba_godzin - 160 AS nadgodziny FROM ksiegowosc.pracownicy
+	INNER JOIN ksiegowosc.godziny ON godziny.id_pracownika = pracownicy.id_pracownika
+		WHERE liczba_godzin > 160
+
+--6g Wyświetl imię i nazwisko pracowników, których pensja zawiera się w przedziale 1500 –3000PLN.
+--3000 - 7000 PLN
+
+SELECT imie, nazwisko, kwota FROM ksiegowosc.pracownicy
+	INNER JOIN ksiegowosc.pensja ON id_pensji = id_pracownika + 1000
+		WHERE kwota >= 3000 AND kwota <= 7000
+
+--6h  Wyświetl imię i nazwisko pracowników, którzy pracowali w nadgodzinach i nie otrzymali premii
+
+SELECT imie, nazwisko FROM ksiegowosc.pracownicy
+	INNER JOIN ksiegowosc.godziny ON godziny.id_pracownika = pracownicy.id_pracownika
+		INNER JOIN ksiegowosc.wynagrodzenie ON wynagrodzenie.id_pracownika = godziny.id_pracownika
+			WHERE liczba_godzin > 160 AND id_premii IS NULL
+			
+--6i Uszereguj pracowników według pensji.
+SELECT * FROM ksiegowosc.pensja
+
+SELECT imie, nazwisko, kwota FROM ksiegowosc.pracownicy
+	INNER JOIN ksiegowosc.pensja ON pensja.id_pensji = pracownicy.id_pracownika + 1000
+		ORDER BY kwota DESC --ASC
+
+--6j Uszereguj pracowników według pensji i premii malejąco.
+
+SELECT imie, nazwisko, kwota FROM ksiegowosc.pracownicy
+	INNER JOIN ksiegowosc.premia ON premia.id_premii = pracownicy.id_pracownika + 2000
+		ORDER BY kwota DESC --ASC
+		
+--6k Zlicz i pogrupuj pracowników według pola ‘stanowisko’.
+
+SELECT COUNT(stanowisko) AS liczba, stanowisko FROM ksiegowosc.pracownicy
+	INNER JOIN ksiegowosc.pensja ON pensja.id_pensji = pracownicy.id_pracownika + 1000
+	GROUP BY stanowisko
+	ORDER BY liczba DESC
+	
+--6l Policz średnią, minimalną i maksymalną płacę dla stanowiska PRACOWNIK PRODUKCYJNY
+SELECT * FROM ksiegowosc.pensja
+
+SELECT AVG(pensja.kwota + premia.kwota), MIN(pensja.kwota + premia.kwota),
+	MAX(pensja.kwota + premia.kwota) FROM ksiegowosc.pensja
+	WHERE stanowisko = 'Pracownik produkcyjny'
+	 
+--6m Policz sumę wszystkich wynagrodzeń.
+	
+SELECT SUM(pensja.kwota + premia.kwota) FROM ksiegowosc.pensja
+	INNER JOIN ksiegowosc.premia ON premia.id_premii = pensja.id_pensji + 1000
+
+--6f Policz sumę wynagrodzeń w ramach danego stanowiska.
+
+SELECT SUM(pensja.kwota + premia.kwota) AS suma, stanowisko FROM ksiegowosc.pensja
+	INNER JOIN ksiegowosc.premia ON premia.id_premii = pensja.id_pensji + 1000
+	GROUP BY(pensja.kwota + premia.kwota), stanowisko
+	ORDER BY suma DESC
+	
+--6g Wyznacz liczbę premii przyznanych dla pracowników danego stanowiska.
+
+SELECT COUNT(id_premii) AS liczba, stanowisko FROM ksiegowosc.premia
+	INNER JOIN ksiegowosc.pensja ON premia.id_premii = pensja.id_pensji + 1000
+	GROUP BY stanowisko
+	ORDER BY liczba DESC
+	
+--6h Usuń wszystkich pracowników mających pensję mniejszą niż 1200 zł.
+
+INSERT INTO ksiegowosc.pracownicy VALUES (12, 'Jaroslawa', 'Madejska', 'Białystok, ul.Graniczna 1', '890-249-438');
+INSERT INTO ksiegowosc.godziny VALUES (12, '20200505', 167, 12);
+INSERT INTO ksiegowosc.pensja VALUES(1012, 'Sekretarz', 1200);
+INSERT INTO ksiegowosc.wynagrodzenie VALUES('W12', '20200930', 12, 12, 1012, NULL);
+
+DELETE FROM ksiegowosc.pracownicy
+WHERE pensja.kwota <= 1200
+RETURNING *;
