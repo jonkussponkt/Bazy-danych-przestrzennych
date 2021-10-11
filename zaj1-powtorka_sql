@@ -44,8 +44,8 @@ CREATE TABLE ksiegowosc.wynagrodzenie(
 	data_wyplaty DATE NOT NULL,
 	id_pracownika INT NOT NULL REFERENCES ksiegowosc.pracownicy(id_pracownika)  ON DELETE CASCADE,
 	id_godziny INT NOT NULL REFERENCES ksiegowosc.godziny(id_godziny) ON DELETE CASCADE, --czm tu trzeba nazwe schematu
-	id_pensji INT NOT NULL REFERENCES ksiegowosc.pensja(id_pensji)   ON DELETE CASCADE, --a w powyzszych nie
-	id_premii INT REFERENCES ksiegowosc.premia(id_premii) 				ON DELETE CASCADE
+	id_pensji INT NOT NULL REFERENCES ksiegowosc.pensja(id_pensji)    ON DELETE CASCADE, --a w powyzszych nie
+	id_premii INT REFERENCES ksiegowosc.premia(id_premii) 			  ON DELETE CASCADE
 );
 
 --ALTER TABLE ksiegowosc.wynagrodzenie
@@ -240,7 +240,14 @@ INSERT INTO ksiegowosc.pracownicy VALUES (12, 'Jaroslawa', 'Madejska', 'Białyst
 INSERT INTO ksiegowosc.godziny VALUES (12, '20200505', 167, 12);
 INSERT INTO ksiegowosc.pensja VALUES(1012, 'Sekretarz', 1200);
 INSERT INTO ksiegowosc.wynagrodzenie VALUES('W12', '20200930', 12, 12, 1012, NULL);
+--dgsdkghdshk
+SELECT * FROM ksiegowosc.pracownicy
+SELECT * FROM ksiegowosc.wynagrodzenie
+SELECT * FROM ksiegowosc.pensja
+SELECT * FROM ksiegowosc.premia
 
 DELETE FROM ksiegowosc.pracownicy
-WHERE pensja.kwota <= 1200
+WHERE pracownicy.id_pracownika IN (SELECT id_pracownika FROM ksiegowosc.wynagrodzenie
+								   INNER JOIN ksiegowosc.pensja ON pensja.id_pensji = wynagrodzenie.id_pensji
+								   WHERE pensja.kwota < 1200)
 RETURNING *;
