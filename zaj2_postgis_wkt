@@ -66,10 +66,12 @@ SELECT ST_Distance (building_geom, poi_geom) AS Line, poi_name, bulding_name FRO
 --6f.	Wypisz pole powierzchni tej części budynku BuildingC, która znajduje się w odległości większej niż 0.5 od budynku BuildingB. 
 
 SELECT ST_Area(ST_Difference(
-	(SELECT building_geom FROM geodane.buldings WHERE bulding_name = 'BuildingC'), 
-	 ST_BUFFER((SELECT building_geom FROM geodane.buldings WHERE bulding_name = 'BuildingB'), 0.5)
-		))
-	FROM geodane.buldings
+				 ST_Difference((SELECT building_geom FROM geodane.buldings WHERE bulding_name = 'BuildingC'),
+							   (SELECT building_geom FROM geodane.buldings WHERE bulding_name = 'BuildingB')), 
+	 			 ST_BUFFER((SELECT building_geom FROM geodane.buldings WHERE bulding_name = 'BuildingB'), 0.5)
+		)) AS Area
+FROM geodane.buldings
+GROUP BY Area;
 
 --ST_AsText (geom -> text)
 
