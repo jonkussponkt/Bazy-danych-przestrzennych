@@ -48,8 +48,6 @@ INSERT INTO airportsNew VALUES
 SELECT ST_Area(ST_Buffer( ST_ShortestLine ( (SELECT geom FROM public.airports WHERE airports.name = 'AMBLER'),
 						 				    (SELECT geom FROM public.lakes WHERE lakes.names = 'Iliamna Lake')),
 										   1000) )
-
-
 ---------------------------------------------------------------------------------------------------------------
 
 --7. Napisz zapytanie, które zwróci sumaryczne pole powierzchni poligonów reprezentujących poszczególne typy drzew znajdujących 
