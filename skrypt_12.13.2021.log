@@ -1,0 +1,14 @@
+Pobrano pomyslnie plik skompresowany .zip z sieci
+Rozpakowano pomyslnie plik .zip 
+Pobrano pomyslnie plik .csv
+Pomyslnie sprawdzono obecnosc duplikatow
+Pomyslnie wybrano unikatowe linie
+Pomyslnie utworzono tabele w bazie danych
+Pomyslnie zaladowano dane do tabeli w bazie danych
+Pomyslnie zliczono rekordy w tabeli
+Pomyslnie przeniesiono oczyszczony plik .csv do podkatalogu PROCESSED
+Pomyslnie wyslano pierwszego maila z raportem
+Pomyslnie przeprowadzono kwerende SQL w bazie danych
+Pomyslnie wyeksportowano tabele do pliku .csv
+Pomyslnie skompresowano plik
+Pomyslnie wyslano maila z plikiem .zip
